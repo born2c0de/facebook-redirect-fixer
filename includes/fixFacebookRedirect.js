@@ -5,8 +5,9 @@
 // @include        http://www.facebook.com/*
 // @include        http://facebook.com/*
 // @run-at         document-start
-// based on http://userscripts.org/scripts/review/117942
 // ==/UserScript==
+
+//UserJS based on script from http://userscripts.org/scripts/review/117942
 
 document.addEventListener('DOMNodeInserted',checksearch,false);
 function checksearch()
@@ -24,15 +25,15 @@ function fixRedirect(node)
 	var refString = /&h=(.+)$/;
 	var realHref=node.href.replace(fbRedirectURL,"");	
 	if(realHref && realHref != node.href)
-	{
-		realHref= realHref.replace(refString,"");
+	{	
+		realHref= realHref.replace(refString,"");			
 		node.href=unescape(realHref);		
 	}	
 }
 
 function huntForLinks()
 {
-	function _clear(event)
+	function fixLink(event)
 	{
 		var node=event.target;
 		if(!node || event.attrName != 'href')return;		
@@ -41,6 +42,6 @@ function huntForLinks()
 	var items=document.getElementsByTagName('a');
 	for(var i=0;i<items.length;i++)
 	{
-		items[i].addEventListener('DOMAttrModified',_clear,false);
+		items[i].addEventListener('DOMAttrModified',fixLink,false);
 	}
 }
