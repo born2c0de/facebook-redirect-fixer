@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" id="http://www.sanchitkarve.com/projects/facebookredirectfixer" version="1.0.0-0">
+<widget xmlns="http://www.w3.org/ns/widgets" id="http://www.sanchitkarve.com/projects/facebookredirectfixer" version="1.1.0-0">
 	<name>Facebook Redirect Fixer</name>
 	<description xml:lang="en">Facebook adds redirection to all shared links to learn what links you click. This extension removes Facebook's redirection to protect your privacy. As a side-effect, shared links will load faster as they are no longer passed to Facebook for redirection.</description>
-  	<author href="https://www.sanchitkarve.com" email="write2sanchit@gmail.com">Sanchit Karve</author>
+  	<author href="http://www.sanchitkarve.com" email="write2sanchit@gmail.com">Sanchit Karve</author>
   	<icon src="icons/logo_64.png"/>	
 	<license href="http://www.opensource.org/licenses/MIT" />		
 </widget>

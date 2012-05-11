@@ -1,5 +1,4 @@
 // ==UserScript==
-// @name           Remove Google Redirect
 // @include        https://www.facebook.com/*
 // @include        https://facebook.com/*
 // @include        http://www.facebook.com/*
@@ -18,30 +17,31 @@ function checksearch()
 		document.addEventListener('DOMNodeInserted',huntForLinks,false);
 	}
 }
-function fixRedirect(node)
+
+var fixRedirect = function(event)
 {
-	node.removeAttribute('onmousedown');		
+	var node = event.target;		
+	node.removeEventListener('mouseenter',fixRedirect,false);
 	var fbRedirectURL = "http://www.facebook.com/l.php?u=";
 	var refString = /&h=(.+)$/;
-	var realHref=node.href.replace(fbRedirectURL,"");	
+	var realHref = node.href.replace(fbRedirectURL,"");	
 	if(realHref && realHref != node.href)
 	{	
-		realHref= realHref.replace(refString,"");			
-		node.href=unescape(realHref);		
-	}	
-}
+		realHref = realHref.replace(refString,"");			
+		node.href = unescape(realHref);		
+	}		
+};
 
 function huntForLinks()
-{
-	function fixLink(event)
-	{
-		var node=event.target;
-		if(!node || event.attrName != 'href')return;		
-		fixRedirect(node);
-	}
+{	
 	var items=document.getElementsByTagName('a');
 	for(var i=0;i<items.length;i++)
-	{
-		items[i].addEventListener('DOMAttrModified',fixLink,false);
-	}
+	{	
+		var hasMouseDown = items[i].getAttribute('onmousedown');
+		if(hasMouseDown && /^UntrustedLink/.test(hasMouseDown))
+		{
+			items[i].removeAttribute('onmousedown');		
+			items[i].addEventListener('mouseenter',fixRedirect,false);
+		}		
+	}	
 }
