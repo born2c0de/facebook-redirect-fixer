@@ -28,13 +28,14 @@ var fixRedirect = function(event)
 	if(realHref && realHref != node.href)
 	{	
 		realHref = realHref.replace(refString,"");			
-		node.href = unescape(realHref);		
-	}		
+		node.href = unescape(realHref);				
+	}				
 };
 
 function huntForLinks()
 {	
-	var items=document.getElementsByTagName('a');
+	var items=document.getElementsByTagName('a');	
+	var refPattern = /(\??)((ref=\w+)|fb_source=\w+)(&?)/;	
 	for(var i=0;i<items.length;i++)
 	{	
 		var hasMouseDown = items[i].getAttribute('onmousedown');
@@ -42,6 +43,12 @@ function huntForLinks()
 		{
 			items[i].removeAttribute('onmousedown');		
 			items[i].addEventListener('mouseenter',fixRedirect,false);
-		}		
+		}
+		else if(refPattern.test(items[i].href)) 
+		{			
+			var realHref = items[i].href.replace(refPattern,"$1");
+			realHref = realHref.replace(/[\?#&]+$/,"");
+			items[i].href = realHref;			
+		}	
 	}	
 }
