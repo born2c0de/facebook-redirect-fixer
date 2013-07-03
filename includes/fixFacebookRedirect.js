@@ -21,34 +21,40 @@ function checksearch()
 var fixRedirect = function(event)
 {
 	var node = event.target;		
+	// Get attribute containing the real url.	
+	var mouseOverAttr = node.getAttribute('onmouseover');
+	// disable facebook's evil url swapping function
+	node.removeAttribute('onclick');
+	node.removeAttribute('onmouseover');
+	// disable this event handler
 	node.removeEventListener('mouseenter',fixRedirect,false);
-	var fbRedirectURL = "http://www.facebook.com/l.php?u=";
-	var refString = /&h=(.+)$/;
-	var realHref = node.href.replace(fbRedirectURL,"");	
-	if(realHref && realHref != node.href)
-	{	
-		realHref = realHref.replace(refString,"");			
-		node.href = unescape(realHref);				
-	}				
+	
+	// Extract real url from facebook's sneaky mouseover event handler.
+	var refPattern = /LinkshimAsyncLink.swap\(this\, \"(.*)\"\);/;
+	var realHref = unescape(refPattern.exec(mouseOverAttr)[1]);
+	realHref = realHref.replace(/\\\//g,"/");
+	// set the href tag to the original URL as it should be.
+	node.href = realHref;
 };
 
 function huntForLinks()
-{	
-	var items=document.getElementsByTagName('a');	
-	var refPattern = /(\??)((ref=\w+)|fb_source=\w+)(&?)/;	
-	for(var i=0;i<items.length;i++)
-	{	
-		var hasMouseDown = items[i].getAttribute('onmousedown');
-		if(hasMouseDown && /^UntrustedLink/.test(hasMouseDown))
+{
+	var items = document.getElementsByTagName('a');	
+	var mouseOverAttr;
+	var onClickAttr;
+	var evilFunc = 'LinkshimAsyncLink.swap(this';
+	for (var i = items.length - 1; i >= 0; i--)
+	{
+		mouseOverAttr = items[i].getAttribute('onmouseover');
+		onClickAttr = items[i].getAttribute('onclick');
+		
+		if(mouseOverAttr && onClickAttr)
 		{
-			items[i].removeAttribute('onmousedown');		
-			items[i].addEventListener('mouseenter',fixRedirect,false);
+			if(mouseOverAttr.indexOf(evilFunc) !== -1 &&
+				onClickAttr.indexOf(evilFunc) !== -1)
+			{
+				items[i].addEventListener('mouseenter',fixRedirect,false);				
+			}
 		}
-		else if(refPattern.test(items[i].href)) 
-		{			
-			var realHref = items[i].href.replace(refPattern,"$1");
-			realHref = realHref.replace(/[\?#&]+$/,"");
-			items[i].href = realHref;			
-		}	
-	}	
+	};
 }
