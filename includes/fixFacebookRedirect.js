@@ -18,7 +18,7 @@ function checksearch()
 	}
 }
 
-var fixRedirect = function(event)
+var fixEvilRedirect = function(event)
 {
 	var node = event.target;		
 	// Get attribute containing the real url.	
@@ -27,7 +27,7 @@ var fixRedirect = function(event)
 	node.removeAttribute('onclick');
 	node.removeAttribute('onmouseover');
 	// disable this event handler
-	node.removeEventListener('mouseenter',fixRedirect,false);
+	node.removeEventListener('mouseenter',fixEvilRedirect,false);
 	
 	// Extract real url from facebook's sneaky mouseover event handler.
 	var refPattern = /LinkshimAsyncLink.swap\(this\, \"(.*)\"\);/;
@@ -37,23 +37,55 @@ var fixRedirect = function(event)
 	node.href = realHref;
 };
 
+var fixRegularRedirect = function(event)
+{
+	var node = event.target;			
+		
+	// remove facebook's event handlers.
+	node.removeAttribute('onclick');
+	node.removeAttribute('onmousedown');
+	// disable this event handler
+	node.removeEventListener('mouseenter',fixRegularRedirect,false);
+	
+	// Remove facebook redirection.	
+	var facebookRedirectString = "http://www.facebook.com/l.php?u=";	
+	var realHref = unescape(node.href.replace(facebookRedirectString,""));
+	
+	// set the href tag to the original URL as it should be.
+	node.href = realHref;
+
+};
+
 function huntForLinks()
 {
 	var items = document.getElementsByTagName('a');	
-	var mouseOverAttr;
+	var onMouseOverAttr;
 	var onClickAttr;
-	var evilFunc = 'LinkshimAsyncLink.swap(this';
+	var onMouseDownAttr;
+
+	var evilFunc1 = 'LinkshimAsyncLink.swap(this';
+	var evilFunc2 = 'UntrustedLink.bootstrap(this';
+
 	for (var i = items.length - 1; i >= 0; i--)
 	{
-		mouseOverAttr = items[i].getAttribute('onmouseover');
+		onMouseOverAttr = items[i].getAttribute('onmouseover');
 		onClickAttr = items[i].getAttribute('onclick');
+		onMouseDownAttr = items[i].getAttribute('onmousedown');
 		
-		if(mouseOverAttr && onClickAttr)
+		if(onMouseOverAttr && onClickAttr)
 		{
-			if(mouseOverAttr.indexOf(evilFunc) !== -1 &&
-				onClickAttr.indexOf(evilFunc) !== -1)
-			{
-				items[i].addEventListener('mouseenter',fixRedirect,false);				
+			if(onMouseOverAttr.indexOf(evilFunc1) !== -1 &&
+				onClickAttr.indexOf(evilFunc1) !== -1)
+			{				
+				items[i].addEventListener('mouseenter',fixEvilRedirect,false);				
+			}
+		}
+
+		if(onMouseDownAttr)
+		{
+			if(onMouseDownAttr.indexOf(evilFunc2) !== -1)
+			{				
+				items[i].addEventListener('mouseenter',fixRegularRedirect,false);
 			}
 		}
 	};
