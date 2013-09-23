@@ -33,6 +33,9 @@ var fixEvilRedirect = function(event)
 	var refPattern = /LinkshimAsyncLink.swap\(this\, \"(.*)\"\);/;
 	var realHref = unescape(refPattern.exec(mouseOverAttr)[1]);
 	realHref = realHref.replace(/\\\//g,"/");
+	// For some reason, the % sign gets escaped into unicode like so: \u0025
+	// Manually unescaping the url below.
+	realHref = realHref.replace(/\\u0025([0-9a-fA-F]{2})/g,"%$1");
 	// set the href tag to the original URL as it should be.
 	node.href = realHref;
 };
